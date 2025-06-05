@@ -1,20 +1,20 @@
 #include <stdio.h>
 #include <string.h>
-#ifdef __WIN32__
-#include <windows.h>
-#endif//__WIN32__
 
-void help();
+void help(void);
 
 int main(int argc, char * argv[], char * envp[], char * platp[])
 {
     for(int i = 0; i != argc; i++)
     {
-        if(strcmp(argv[i], "-h"))
-            help();
-        
+        if(argc >= 2)
+        {
+            if(strcmp(argv[i], "-h"))
+                help();
+        }
+        else
+            printf("Test\n");
     }
-    printf("Test\n");
     return 0;
 }
 
