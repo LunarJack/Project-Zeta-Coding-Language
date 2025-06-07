@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <string.h>
 
-void help(void);
-
 int main(int argc, char * argv[], char * envp[], char * platp[])
 {
     for(int i = 0; i != argc; i++)
@@ -10,15 +8,10 @@ int main(int argc, char * argv[], char * envp[], char * platp[])
         if(argc >= 2)
         {
             if(strcmp(argv[i], "-h"))
-                help();
+                printf("Test2\n");
         }
         else
             printf("Test\n");
     }
     return 0;
-}
-
-void help(void)
-{
-    printf("Test2\n");
 }

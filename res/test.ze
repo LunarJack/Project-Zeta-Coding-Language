@@ -1,8 +1,8 @@
-entry(var int argc, var string[] argv)
+entry(par int argc, par string[] argv)
 {
     var int x = 27;
     var int y = #FF;
-    var int z = %01101011
+    var int z = %01101011;
     print(x + y + z);
-    exit 1;
+    exit 0;
 }

@@ -42,7 +42,8 @@ struct Token
 {
     TokenType type;
     std::string value;
-    Token(TokenType t, const std::string& v):type(t), value(v)
+
+    Token(TokenType t, const std::string& v) : type(t), value(v)
     {
     }
 };
@@ -84,5 +85,4 @@ class Lexer
 std::vector<Token> lex(char srcFilePath[]);
 
 std::string getTokenTypeName(TokenType type);
-void printTokens(const std::vector<Token>& tokens);
 #endif//LEXER_HPP

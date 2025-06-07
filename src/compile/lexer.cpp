@@ -1,5 +1,7 @@
 #include <compile/lexer.hpp>
 
+void printTokens(const std::vector<Token>& tokens);
+
 std::vector<Token> lex(char srcFilePath[])
 {
     std::ifstream file(srcFilePath);
@@ -18,90 +20,99 @@ std::vector<Token> Lexer::tokenize()
     std::string tmp2;
     bool tmp3;
     std::vector<Token> tokens;
-    while(this->position < this->input.length())
+    char currentChar;
+    try
     {
-        char currentChar = this->input[this->position];
+        while(position < input.length())
+        {
+            currentChar = input[position];
 
-        if(this->isWhitespace(currentChar))
-        {
-            this->position++;
-            continue;
-        }
-        if(isAlpha(currentChar))
-        {
-            std::string word = this->getNextWord();
-            if(this->keywords.find(word) != this->keywords.end())
-                tokens.emplace_back(TokenType::KEYWORD, word);
-            else if(this->types.find(word) != this->types.end())
-                tokens.emplace_back(TokenType::TYPE, word);
-            else
-                tokens.emplace_back(TokenType::IDENTIFIER, word);
-        }
-        else if(isDigit(currentChar))
-        {
-            Number number = getNextNumber();
-            if(number.isFloat)
-                tokens.emplace_back(TokenType::FLOAT, number.value);
-            else if(number.isDouble)
-                tokens.emplace_back(TokenType::DOUBLE, number.value);
-            else if(number.isHex)
-                tokens.emplace_back(TokenType::HEX_INTEGER, number.value);
-            else if(number.isBin)
-                tokens.emplace_back(TokenType::BIN_INTEGER, number.value);
-            else
-                tokens.emplace_back(TokenType::INTEGER, number.value);
+            if(isWhitespace(currentChar))
+            {
+                position++;
+                continue;
+            }
+            if(isAlpha(currentChar))
+            {
+                std::string word = getNextWord();
+                if(keywords.find(word) != keywords.end())
+                    tokens.emplace_back(TokenType::KEYWORD, word);
+                else if(types.find(word) != types.end())
+                    tokens.emplace_back(TokenType::TYPE, word);
+                else
+                    tokens.emplace_back(TokenType::IDENTIFIER, word);
+            }
+            else if(isDigit(currentChar))
+            {
+                Number number = getNextNumber();
+                if(number.isFloat)
+                    tokens.emplace_back(TokenType::FLOAT, number.value);
+                else if(number.isDouble)
+                    tokens.emplace_back(TokenType::DOUBLE, number.value);
+                else if(number.isHex)
+                    tokens.emplace_back(TokenType::HEX_INTEGER, number.value);
+                else if(number.isBin)
+                    tokens.emplace_back(TokenType::BIN_INTEGER, number.value);
+                else
+                    tokens.emplace_back(TokenType::INTEGER, number.value);
             
-        }
-        else if(currentChar == '+' || currentChar == '-' || currentChar == '*' || currentChar == '/' || currentChar == '^' || currentChar == '|' || currentChar == '!' || currentChar == '&')
-            tokens.emplace_back(TokenType::OPERATOR, std::string(1, currentChar));
-        else if(currentChar == '(' || currentChar == ')' || currentChar == '[' || currentChar == ']' || currentChar == '{' || currentChar == '}' || currentChar == ';' || currentChar == ':' || currentChar == ',')
-            tokens.emplace_back(TokenType::PUNCTUATOR, std::string(1, currentChar));
-        else if(currentChar == '\'')
-        {
-            this->position++;
-            tmp1[0] = this->input[this->position];
-            if(tmp1[0] == '\\')
-            {
-                this->position++;
-                tmp1[1] = this->input[this->position];
-                tmp3 = true;
             }
-            this->position++;
-            tmp1[2] = this->input[this->position];
-            if(tmp1[2] == '\'' && !tmp3)
+            else if(currentChar == '+' || currentChar == '-' || currentChar == '*' || currentChar == '/' || currentChar == '^' || currentChar == '|' || currentChar == '!' || currentChar == '&')
+                tokens.emplace_back(TokenType::OPERATOR, std::string(1, currentChar));
+            else if(currentChar == '(' || currentChar == ')' || currentChar == '[' || currentChar == ']' || currentChar == '{' || currentChar == '}' || currentChar == ';' || currentChar == ':' || currentChar == ',')
+                tokens.emplace_back(TokenType::PUNCTUATOR, std::string(1, currentChar));
+            else if(currentChar == '\'')
             {
-                tokens.emplace_back(TokenType::CHARACTER, std::string(1, tmp1[1]));
-                tmp3 = false;
-                strcpy(tmp1, "");
-            }
-            else if(tmp1[3] == '\'' && tmp3)
-            {
-                tokens.emplace_back(TokenType::CHARACTER, std::string(2, tmp1[1] + tmp1[2]));
-                tmp3 = false;
-                strcpy(tmp1, "");
-            }
-            else
-            {
-                break;
-            }
-        }
-        else if(currentChar == '\"')
-        {
-            position++;
-            for(; this->input[this->position] != '\"'; this->position++)
-            {
-                tmp2.append(std::string(1, this->input[this->position]));
-                if(this->input[this->position] == '\\')
+                position++;
+                tmp1[0] = input[position];
+                if(tmp1[0] == '\\')
                 {
-                    this->position++;
-                    tmp2.append(std::string(1, this->input[this->position]));
+                    position++;
+                    tmp1[1] = input[position];
+                    tmp3 = true;
+                }
+                position++;
+                tmp1[2] = input[position];
+                if(tmp1[2] == '\'' && !tmp3)
+                {
+                    tokens.emplace_back(TokenType::CHARACTER, std::string(1, tmp1[1]));
+                    tmp3 = false;
+                    strcpy(tmp1, "");
+                }
+                else if(tmp1[3] == '\'' && tmp3)
+                {
+                    tokens.emplace_back(TokenType::CHARACTER, std::string(2, tmp1[1] + tmp1[2]));
+                    tmp3 = false;
+                    strcpy(tmp1, "");
+                }
+                else
+                {
+                    throw(001);
                 }
             }
-            tokens.emplace_back(TokenType::STRING, tmp2);
-            tmp2.clear();
+            else if(currentChar == '\"')
+            {
+                position++;
+                for(; input[position] != '\"'; position++)
+                {
+                    tmp2.append(std::string(1, input[position]));
+                    if(input[position] == '\\')
+                    {
+                        position++;
+                        tmp2.append(std::string(1, input[position]));
+                    }
+                }
+                tokens.emplace_back(TokenType::STRING, tmp2);
+                tmp2.clear();
+            }
+            else
+                tokens.emplace_back(TokenType::UNKNOWN, std::string(1, currentChar));
         }
-        else
-            tokens.emplace_back(TokenType::UNKNOWN, std::string(1, currentChar));
+    }
+    catch(int errorCode)
+    {
+        std::fprintf(stderr, "Error, error code: %d", errorCode);
+        exit(1);
     }
     return tokens;
 }
@@ -117,35 +128,35 @@ Number::Number(std::string value, bool isDouble, bool isFloat, bool isHex, bool 
 
 Number Lexer::getNextNumber()
 {
-    size_t start = this->position;
+    size_t start = position;
     bool hasDecimal = false;
     bool isFloat = false;
     bool isDouble = false;
     bool isHex = false;
     bool isBin = false;
-    while(this->position < this->input.length() && (isDigit(this->input[this->position]) || this->input[this->position] == '.' || this->input[this->position] == 'f' || this->input[this->position] == 'd'))
+    while(position < input.length() && (isDigit(input[position]) || input[position] == '.' || input[position] == 'f' || input[position] == 'd' || input[position] == '%' || input[position] == '#') && input[position] != ';')
     {
-        if(this->input[this->position] == '.')
+        if(input[position] == '.')
         {
             if(hasDecimal)
                 break;
             hasDecimal = true;
         }
-        else if(this->input[this->position] == '%')
+        else if(input[position] == '%')
         {
             isBin = true;
         }
-        else if(this->input[this->position] == '#')
+        else if(input[position] == '#')
         {
             isHex = true;
         }
         else if(hasDecimal && !isBin && !isHex)
         {
-            if(isAlpha(this->input[this->position]))
+            if(isAlpha(input[position]))
             {
-                if(this->input[this->position] == 'f')
+                if(input[position] == 'f')
                     isFloat = true;
-                else if(this->input[this->position] == 'd')
+                else if(input[position] == 'd')
                     isDouble = true;
                 else
                     break;
@@ -154,24 +165,24 @@ Number Lexer::getNextNumber()
         else if(isFloat || isDouble)
             break;
 
-        this->position++;
+        position++;
     }
     return Number(input.substr(start, position - start), isDouble, isFloat, isHex, isBin);
 }
 
 std::string Lexer::getNextWord()
 {
-    size_t start = this->position;
-    while(this->position < this->input.length() && this->isAlphaNumeric(this->input[position]))
+    size_t start = position;
+    while(position < input.length() && isAlphaNumeric(input[position]))
     {
-        this->position++;
+        position++;
     }
-    return this->input.substr(start, this->position - start);
+    return input.substr(start, position - start);
 }
 
 bool Lexer::isAlphaNumeric(char c)
 {
-    return this->isAlpha(c) || this->isDigit(c);
+    return isAlpha(c) || isDigit(c);
 }
 
 bool Lexer::isDigit(char c)
@@ -191,37 +202,38 @@ bool Lexer::isWhitespace(char c)
 
 void Lexer::initKeywords()
 {
-    this->keywords["entry"] = TokenType::KEYWORD;
-    this->keywords["var"] = TokenType::KEYWORD;
-    this->keywords["func"] = TokenType::KEYWORD;
-    this->keywords["unsigned"] = TokenType::KEYWORD;
-    this->keywords["if"] = TokenType::KEYWORD;
-    this->keywords["else"] = TokenType::KEYWORD;
-    this->keywords["elif"] = TokenType::KEYWORD;
-    this->keywords["for"] = TokenType::KEYWORD;
-    this->keywords["while"] = TokenType::KEYWORD;
-    this->keywords["do"] = TokenType::KEYWORD;
-    this->keywords["switch"] = TokenType::KEYWORD;
-    this->keywords["try"] = TokenType::KEYWORD;
-    this->keywords["throw"] = TokenType::KEYWORD;
-    this->keywords["catch"] = TokenType::KEYWORD;
-    this->keywords["break"] = TokenType::KEYWORD;
-    this->keywords["continue"] = TokenType::KEYWORD;
-    this->keywords["return"] = TokenType::KEYWORD;
-    this->keywords["exit"] = TokenType::KEYWORD;
+    keywords["entry"] = TokenType::KEYWORD;
+    keywords["var"] = TokenType::KEYWORD;
+    keywords["par"] = TokenType::KEYWORD;
+    keywords["func"] = TokenType::KEYWORD;
+    keywords["unsigned"] = TokenType::KEYWORD;
+    keywords["if"] = TokenType::KEYWORD;
+    keywords["else"] = TokenType::KEYWORD;
+    keywords["elif"] = TokenType::KEYWORD;
+    keywords["for"] = TokenType::KEYWORD;
+    keywords["while"] = TokenType::KEYWORD;
+    keywords["do"] = TokenType::KEYWORD;
+    keywords["switch"] = TokenType::KEYWORD;
+    keywords["try"] = TokenType::KEYWORD;
+    keywords["throw"] = TokenType::KEYWORD;
+    keywords["catch"] = TokenType::KEYWORD;
+    keywords["break"] = TokenType::KEYWORD;
+    keywords["continue"] = TokenType::KEYWORD;
+    keywords["return"] = TokenType::KEYWORD;
+    keywords["exit"] = TokenType::KEYWORD;
 }
 
 void Lexer::initTypes()
 {
-    this->types["int"] = TokenType::TYPE;
-    this->types["byte"] = TokenType::TYPE;
-    this->types["short"] = TokenType::TYPE;
-    this->types["long"] = TokenType::TYPE;
-    this->types["float"] = TokenType::TYPE;
-    this->types["double"] = TokenType::TYPE;
-    this->types["char"] = TokenType::TYPE;
-    this->types["string"] = TokenType::TYPE;
-    this->types["void"] = TokenType::TYPE;
+    types["int"] = TokenType::TYPE;
+    types["byte"] = TokenType::TYPE;
+    types["short"] = TokenType::TYPE;
+    types["long"] = TokenType::TYPE;
+    types["float"] = TokenType::TYPE;
+    types["double"] = TokenType::TYPE;
+    types["char"] = TokenType::TYPE;
+    types["string"] = TokenType::TYPE;
+    types["void"] = TokenType::TYPE;
 }
 
 std::string getTokenTypeName(TokenType type)
