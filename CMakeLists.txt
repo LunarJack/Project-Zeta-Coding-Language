@@ -15,7 +15,6 @@ add_executable(zeta src/main.c)
 
 add_executable(zetac src/compile/compile.cpp src/compile/lexer.cpp)
 
-
 target_include_directories(zeta PUBLIC include)
 
 target_include_directories(zetac PUBLIC include)
